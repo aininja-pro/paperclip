@@ -23,6 +23,7 @@ import { clientRoutes } from "./routes/clients.js";
 import { blueprintRoutes } from "./routes/blueprints.js";
 import { sessionExtRoutes } from "./routes/sessions-ext.js";
 import { claudeMdRoutes } from "./routes/claude-md.js";
+import { filesystemRoutes } from "./routes/filesystem.js";
 import { secretRoutes } from "./routes/secrets.js";
 import { costRoutes } from "./routes/costs.js";
 import { activityRoutes } from "./routes/activity.js";
@@ -170,6 +171,7 @@ export async function createApp(
   api.use(blueprintRoutes(db));
   api.use(sessionExtRoutes(db));
   api.use(claudeMdRoutes(db));
+  api.use(filesystemRoutes());
   api.use(secretRoutes(db));
   api.use(costRoutes(db));
   api.use(activityRoutes(db));
