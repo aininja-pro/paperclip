@@ -19,6 +19,9 @@ import { routineRoutes } from "./routes/routines.js";
 import { executionWorkspaceRoutes } from "./routes/execution-workspaces.js";
 import { goalRoutes } from "./routes/goals.js";
 import { approvalRoutes } from "./routes/approvals.js";
+import { clientRoutes } from "./routes/clients.js";
+import { blueprintRoutes } from "./routes/blueprints.js";
+import { sessionExtRoutes } from "./routes/sessions-ext.js";
 import { secretRoutes } from "./routes/secrets.js";
 import { costRoutes } from "./routes/costs.js";
 import { activityRoutes } from "./routes/activity.js";
@@ -161,6 +164,10 @@ export async function createApp(
   api.use(executionWorkspaceRoutes(db));
   api.use(goalRoutes(db));
   api.use(approvalRoutes(db));
+  // 120x custom routes
+  api.use(clientRoutes(db));
+  api.use(blueprintRoutes(db));
+  api.use(sessionExtRoutes(db));
   api.use(secretRoutes(db));
   api.use(costRoutes(db));
   api.use(activityRoutes(db));
