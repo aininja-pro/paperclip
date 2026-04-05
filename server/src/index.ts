@@ -33,7 +33,10 @@ import {
   heartbeatService,
   reconcilePersistedRuntimeServicesOnStartup,
   routineService,
+  builderService,
 } from "./services/index.js";
+import { setupBuilderSocketIO } from "./realtime/builder-socket.js";
+import { builderRoutes } from "./routes/builder.js";
 import { createFeedbackTraceShareClientFromConfig } from "./services/feedback-share-client.js";
 import { createStorageServiceFromConfig } from "./storage/index.js";
 import { printStartupBanner } from "./startup-banner.js";
@@ -542,7 +545,13 @@ export async function startServer(): Promise<StartedServer> {
     resolveSession,
   });
   const server = createServer(app as unknown as Parameters<typeof createServer>[0]);
-  
+
+  // Set up socket.io for builder terminal streaming, then wire up builder service
+  const { io: builderIo, attachBuilderService } = setupBuilderSocketIO(server);
+  const builder = builderService(db as any, builderIo);
+  attachBuilderService(builder);
+  app.use("/api", builderRoutes(db as any, builder));
+
   if (listenPort !== config.port) {
     logger.warn(`Requested port is busy; using next free port (requestedPort=${config.port}, selectedPort=${listenPort})`);
   }

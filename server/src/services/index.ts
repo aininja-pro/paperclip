@@ -35,3 +35,4 @@ export { createStorageServiceFromConfig, getStorageService } from "../storage/in
 export { clientService } from "./clients.js";
 export { blueprintService } from "./blueprints.js";
 export { sessionExtService } from "./sessions-ext.js";
+export { builderService, type BuilderService } from "./builder.js";
