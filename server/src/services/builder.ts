@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { eq, and } from "drizzle-orm";
 import type { Db } from "@paperclipai/db";
-import { sessionsExt, blueprints, projectWorkspaces, projects } from "@paperclipai/db";
+import { sessionsExt, blueprints, projectWorkspaces, projects, issues } from "@paperclipai/db";
 import type { Server as SocketIOServer } from "socket.io";
 import { logger } from "../middleware/logger.js";
 
@@ -131,6 +131,25 @@ export function builderService(db: Db, io: SocketIOServer) {
               completedAt: new Date(),
             })
             .where(eq(sessionsExt.id, sessionId));
+
+          // Create approval gate issue for completed builds
+          if (code === 0) {
+            const [project] = await db
+              .select()
+              .from(projects)
+              .where(eq(projects.id, projectId));
+            if (project) {
+              await db.insert(issues).values({
+                companyId: project.companyId,
+                projectId,
+                title: `Approval Gate: ${blueprint.title} build completed`,
+                description: `Build session \`${sessionId}\` completed successfully for blueprint "${blueprint.title}".\n\nReview the output and approve to continue, or reject to request changes.`,
+                status: "in_review",
+                priority: "high",
+              });
+              logger.info({ sessionId, projectId }, "Created approval gate issue");
+            }
+          }
         } catch (err) {
           logger.error({ err, sessionId }, "Failed to update session on completion");
         }
